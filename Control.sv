@@ -7,13 +7,12 @@ module Control #(parameter opwidth = 3, mcodebits = 4)(
 
 always_comb begin
 // defaults to add
-// RegDst removed (no three reg instructions)
   Branch 	=   'b0;    // 1: branch (jump)
-  MemWrite      =   'b0;    // 1: store to memory
+  MemWrite  =   'b0;    // 1: store to memory
   ALUSrc 	=   'b0;    // 1: immediate  0: second reg file output
-  RegWrite      =   'b1;    // 0: for store or no op  1: most other operations 
-  MemtoReg      =   'b0;    // 1: load -- route memory instead of ALU to reg_file data in
-  ALUOp	        =   'b000;  // add;
+  RegWrite  =   'b1;    // 0: for store or no op  1: most other operations 
+  MemtoReg  =   'b0;    // 1: load -- route memory instead of ALU to reg_file data in
+  ALUOp	   =   'b000;  // add;
 
 // override defaults 
 case(instr)   
