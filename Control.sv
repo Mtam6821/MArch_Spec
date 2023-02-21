@@ -32,9 +32,9 @@ case(instr)
 	   end
   'b100X:  ALUOp = 'b101; 	//mov
   'b101X:  begin		//biz
-	   	Branch   = 'b1;
+	   Branch   = 'b1;
 		RegWrite = 'b0;
-		ALUOp = 'b111;
+		ALUOp = 'b011;	  //check if zero: datA ^ 0
   	   end
   'b110X:  ALUSrc = 'b1;	//addi
   'b111X:  begin

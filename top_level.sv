@@ -14,7 +14,8 @@ module top_level(
   logic sc_in,   				  // shift/carry out from/to ALU
    	  pariQ,               // registered parity flag from ALU
 		  zeroQ;               // registered zero flag from ALU 
-  wire  jump,                // from control to PC; jump enable
+  wire  jump,                // from ALU to PC; take branch
+		  biz,					  // from Control to ALU, indicates if branch possible
 		  pari,
         zero,
 		  RegWrite,	  
@@ -30,7 +31,7 @@ module top_level(
   PC #(.D(D)) 					     // D sets program counter width
      pc1 (.reset            ,
           .clk              ,
-		    .absjump_en (jump),	  //see ctrl.Branch
+		    .absjump_en (jump),	  //jump iff datA = 0 and branch = 1
 		    .target(datB)     ,   //Upper bits taken from second op reg when jumping
 		    .prog_ctr          ); //current PC
 
@@ -49,7 +50,7 @@ module top_level(
 
 // control decoder
   Control ctl1(.instr(mach_code[8:5]),
-  .Branch(jump),  		//only for control flow
+  .Branch(biz),			//indicates if biz instruction
   .MemWrite, 				//only for stores
   .ALUSrc,        		//for I-type instructions (never 1 with MemWrite)
   .RegWrite,      		//for writeback to reg file
@@ -76,12 +77,15 @@ module top_level(
   assign muxB = ALUSrc? immed : datB;
 
   alu alu1(.alu_cmd(ALUOp),
+			  .branch(biz),	
            .inA(datA),
 		     .inB(muxB),
 		     .sc_i(sc),   // output from sc register
 		     .rslt(ALU_rslt), // ALU rslt
 		     .sc_o(sc_o), // input to sc register
 		     .pari);  
+			 
+  assign jump = ALU_rslt & !biz;
 			  
   dat_mem dm1(.dat_in(datA)  ,  	 //data from Reg file
               .clk           ,

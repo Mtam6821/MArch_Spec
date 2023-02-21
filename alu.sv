@@ -3,6 +3,7 @@
 module alu(
   input[2:0] alu_cmd,    // ALU instructions
   input[7:0] inA, inB,	 // 8-bit wide data path
+  input      branch,		 // indicates that instruction is biz
   input      sc_i,       // shift_carry in
   output logic[7:0] rslt,
   output logic sc_o,     // shift_carry out
@@ -23,7 +24,12 @@ always_comb begin
     3'b010: //AND
 	rslt = inA & inB;
     3'b011: //XOR
-	rslt = inA ^ inB;
+	if (branch) begin
+	    rslt = inA ^ 0;
+	end
+	else begin
+	    rslt = inA ^ inB;
+	end
     3'b100: //slt
 	if (inA < inB) begin
 	    rslt = 'b0;
