@@ -1,0 +1,47 @@
+//miscellaneous instructions from prog1, ignore
+
+
+addi R1, 4      
+ls   R1, 11		#R1 = 64
+sb   R0, R1		#store encode counter at mem[64]
+addi R1, 1 
+addi R0, 0
+ls   R0, 11
+addi R0, 7		#R0 = bitmask[0]
+sb   R0, R1		#store bitmask[0] at mem[65]
+ls   R0, 15		#clear R0
+addi R0, 15		|
+ls   R0, 11		|
+addi R0, 0 		#R0 = bitmask[1]
+addi R1, 1		
+sb   R0, R1		#store bitmask[1] at mem[66]
+ls   R0, 15		#clear R0
+addi R0, 0
+ls   R0, 11
+addi R0, 7		#R0 = bitmask[2]
+addi R1, 1
+sb   R0, R1		#store bitmask[0] at mem[67]
+ls   R0, 15		#clear R0
+addi R0, 8		
+ls   R0, 11
+addi R0, 14		#R0 = bitmask[3]
+addi R1, 1
+sb   R0, R1		#store bitsmask[3] at mem[68]
+
+#continue storing bitmasks into memory
+ 58 lb  R1, %pb[0]          | get parity0   
+ 59 ls  R1, 3               #R1 = pb[0] << 3
+ 60 lb  R2, %pb[1]          |
+ 61 ls  R2, 2               |
+ 62 or  R1, R2              #R1 = R1 | (pb[1] << 2)
+ 63 lb  R2, %pb[2]          |
+ 64 ls  R2, 1               |
+ 65 or  R1, R2              #R1 = R1 | (pb[2] << 1)
+ 66 lb  R2, %pb[3]          |
+ 67 or  R1, R2              #R1 = R1 | pb[3]
+ 68 lb  R0, %msb            |
+ 69 ls  R0, 4               |
+ 70 or  R0, R1              #R0 = (msb << 4) | pb[0:3]
+ 71 ls  R1, 8               #R1 = ^(R0)
+ 72 lb  R0, %lsw            |
+ 73 ls  R1, 8               #R1 = R1^(temp1) (par0)

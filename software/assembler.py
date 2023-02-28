@@ -1,13 +1,17 @@
 import sys
 
 # Reads MArch assembly instruction file and outputs
-#   machine code for MArch to output.txt. See spec 
-#   for available functions
+#   machine code for MArch to given file. If no file 
+#   given, writes to "output.txt" See spec for details
 # 
 # Format assembly instructions as follows:
-#   <instr> <operand1>, <operand2>  <comment if desired>
+#   <instr> <operand1>, <operand2>  <ignored text>
+#       where registers are written as Rx
+# As long as whitespace and commas correctly placed 
+#   in source file, all text after instr in line is ignored. 
+# Single-line comments begin with the '#' character
 #
-# Usage: python3 assembler.py <assembly_source_file>
+# Usage: python3 assembler.py <assembly_source_file> <output_file>
 #
 # Michael Tam
 
@@ -45,49 +49,56 @@ lines = src_file.readlines()
 line_num = 1    #for debugging compile errors in assembly
 for line in lines:
     words = line.split()    #get each word in assembly file
+    if (len(words) == 0 or words[0][0] == "#"):   #skip comments and empty lines
+        continue
     instr = words[0]        
     
     if (bits_map[instr] == None):
         #unexpected instruction error
-        print("Unexpected instruction in " + sys.argv[1] + ", line: " + line_num)
+        print("Unexpected instruction in " + sys.argv[1] + ", line: " + str(line_num))
         exit(1)
 
     arg1 = None
     arg2 = None
+    try:
+        #get instruction operands based on format type
+        if (format_map[instr] == "R"):
+            #out of bounds check
+            if int(words[1][1:-1]) > 7 or int(words[2][1:]) > 3:
+                print(instr + " calls reg out of bounds, line: " + str(line_num))
+                exit(1)
 
-    #get instruction operands based on format type
-    if (format_map[instr] == "R"):
-        #out of bounds check
-        if int(words[1][1:-1]) > 7 or int(words[2][1:]) > 3:
-            print(instr + " calls reg out of bounds, line: " + line_num)
-            exit(1)
-
-        #get args
-        arg1 = str('{0:03b}'.format(int(words[1][1:-1]))) #converts 'R1,' to '001'
-        arg2 = str('{0:02b}'.format(int(words[2][1:])))   #converts 'R1' to '01'
-    
-    elif (format_map[instr] == "F"):
-        #out of bounds check
-        if int(words[1][1:-1]) > 7 or int(words[2][1:]) > 7:
-            print(instr + "calls reg out of bounds, line: " + line_num)
-            exit(1)       
+            #get args
+            arg1 = str('{0:03b}'.format(int(words[1][1:-1]))) #converts 'R1,' to '001'
+            arg2 = str('{0:02b}'.format(int(words[2][1:])))   #converts 'R1' to '01'
         
-        #get args
-        arg1 = str('{0:03b}'.format(int(words[1][1:-1]))) #converts 'R1,' to '001'
-        arg2 = str('{0:03b}'.format(int(words[2][1:])))   #converts 'R1' to '001'
-    
-    elif (format_map[instr] == "I"):
-        #out of bounds check
-        if int(words[1][1:-1]) > 3 or int(words[2][1:]) > 15:
-            print(instr + " calls reg out of bounds, line: " + line_num)
-            exit(1)
+        elif (format_map[instr] == "F"):
+            #out of bounds check
+            if int(words[1][1:-1]) > 7 or int(words[2][1:]) > 7:
+                print(instr + "calls reg out of bounds, line: " + str(line_num))
+                exit(1)       
+            
+            #get args
+            arg1 = str('{0:03b}'.format(int(words[1][1:-1]))) #converts 'R1,' to '001'
+            arg2 = str('{0:03b}'.format(int(words[2][1:])))   #converts 'R1' to '001'
+        
+        elif (format_map[instr] == "I"):
+            #out of bounds check
+            if int(words[1][1:-1]) > 3 or int(words[2]) > 15:
+                print(instr + " calls reg out of bounds, line: " + str(line_num))
+                exit(1)
 
-        #get args
-        arg1 = str('{0:02b}'.format(int(words[1][1:-1]))) #converts 'R1,' to '01'
-        arg2 = str('{0:04b}'.format(int(words[2])))       #converts '14' to '1110'
+            #get args
+            arg1 = str('{0:02b}'.format(int(words[1][1:-1]))) #converts 'R1,' to '01'
+            arg2 = str('{0:04b}'.format(int(words[2])))       #converts '14' to '1110'
 
-    #write to output file
-    dest_file.write(bits_map[instr] + arg1 + arg2 + "\n")
-    line_num += 1
+        #write to output file
+        dest_file.write(bits_map[instr] + arg1 + arg2 + "\n")
+        line_num += 1
+
+    except:
+        #catch any other errors and print the line
+        print("some error, line: " + str(line_num))
+        exit(1)
     
  

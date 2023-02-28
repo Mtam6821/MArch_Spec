@@ -1,23 +1,33 @@
+# Pre-loaded memory layout:
+#   all values initialized as zero, except bitmasks (see spec for bitmask vals)
+# 64 = j
+# 65...72 = bitmasks
+# 73 = temp1
+# 74 = temp2
+# 75...78 = pb[0...3]
+# 79 = par0
+
+
 ls   R0, 15
 ls   R1, 15
 ls   R2, 15
 ls   R3, 15     |clear lower reg values
 addi R0, 0      |nop
-mv   R6, R0		#R6 = i (for-loop counter)
+mov  R6, R0		#R6 = i (for-loop counter)
 addi R0, 4		|
-mv   R7, R0		#R7 = 8 (size of bm array)
+mov  R7, R0		#R7 = 8 (size of bm array)
 ls   R1, 15		#beginning of for-loop (PC 00_0000_1000)
 addi R1, 4		
 ls   R1, 11		
 lb   R0, R1		| R0 = j at mem[64]
 lb   R0, R0		| R0 = mem[j] (msw)
-mv   R5, R0		#R5 = msw
+mov  R5, R0		#R5 = msw
 addi R1, 1		| R1 = 65 (&bitmask[0])
-mv   R0, R6		|
+mov  R0, R6		|
 add  R0, R1		#R0 = &bitmask[i]
 lb   R3, R0		#R3 = bitmask[i]
 and  R5, R3		#R5 = msw & bitmask[i]
-mv   R3, R5		|
+mov  R3, R5		|
 ls   R1, 15
 addi R1, 4		|
 ls   R1, 11
@@ -29,9 +39,9 @@ ls   R1, 11		#R1 = 64
 lb   R0, R1		| R0 = j at mem[64]
 addi R0, 1
 lb   R0, R0		| R0 = mem[j + 1] (lsw)
-mv   R5, R0		#R5 = lsw
+mov  R5, R0		#R5 = lsw
 addi R1, 1		#R1 = &bitmask[0]
-mv   R0, R6		|
+mov  R0, R6		|
 addi R0, 1		| R0 = i + 1
 add  R0, R1		#R0 = &bitmask[i+1]
 lb   R3, R0		#R3 = bitmask[i+1]
@@ -49,7 +59,7 @@ ls   R1, 11		|
 addi R1, 11		#R1 = 75 (&pb[0])
 ls   R2, 15
 ls   R3, 15
-mv   R2, R6		|
+mov  R2, R6		|
 addi R3, 6		|
 and  R2, R3		|
 add  R1, R2		#R1 = &pb[i & 6]
@@ -58,7 +68,8 @@ addi R0, 2		|
 add  R6, R0		#i += 2
 ls   R0, 15		|
 addi R0, 2		#R0 = addr of for-loop PC 0000_0010_(00)
-slt  R6, R7		|
+mov  R1, R7
+slt  R6, R1		|
 biz  R6, R0		#if i < 8, return back to start of for-loop
 ls   R0, 15     #get par0
 addi R0, 4
@@ -82,14 +93,14 @@ addi R2, 4      |
 ls   R2, 11     #R2 = &j
 lb   R2, R2     #R2 = j
 lb   R0, R2		#R0 = msw (mem[j])
-mv   R7, R2     |R7 holds copy of j
-mv   R6, R0     |R6 holds copy of msw
+mov  R7, R2     |R7 holds copy of j
+mov  R6, R0     |R6 holds copy of msw
 ls   R0, 4		|
 xor  R0, R1		#R0 = (msb << 4) | pb[0:3]
 ls   R1, 8		#R1 = ^((msb << 4) | pb[0:3])
 addi R2, 1      |
 lb   R0, R2	    #R0 = lsw (mem[j+1])
-mv   R5, R0     |R5 holds copy of lsw
+mov  R5, R0     |R5 holds copy of lsw
 ls   R3, 8		#R3 = ^(lsw) (par0)
 xor  R3, R1     #R3 = par0
 ls   R0, 15
@@ -97,17 +108,17 @@ addi R0, 4
 ls   R0, 11
 addi R0, 15
 sb   R3, R0     #store par0 at mem[79]
-mv   R0, R7
+mov  R0, R7
 addi R0, 15
 addi R0, 15     #R0 = j+30 for write destination
-mv   R7, R0     |store j+30 at R7
-mv   R1, R6     |R1 = msw
+mov  R7, R0     |store j+30 at R7
+mov  R1, R6     |R1 = msw
 ls   R1, 12     #R1 = msw << 5
 ls   R3, 15
 addi R3, 1
 ls   R3, 11
 addi R3, 14     #R3 = bitmask: 0001_1110 for lsw bits
-mv   R2, R5     |R2 = lsw
+mov  R2, R5     |R2 = lsw
 ls   R2, 5      |left cycle 5 = right cycle 3
 and  R2, R3     |R2 = 000b8_b7b6b50     
 xor  R1, R2     #R1 = b11 b10 b9 b8_b7 b6 b5 0
@@ -121,10 +132,10 @@ sb   R1, R0     |write outputMSW
 addi R0, 1      #R0 = j+30+1 for &outputLSW
 ls   R3, 15 
 addi R3, 14     |R3 = bitmask 0000_1110 for [b4:2]
-mv   R1, R5     
+mov  R1, R5     
 and  R1, R3     |R1 = 0000_b4b3b20
 ls   R1, 11     |
-mv   R2, R5
+mov  R2, R5
 ls   R3, 15     
 addi R3, 1      |R3 = bitmask 0000_0001 for b1
 and  R2, R3     |
@@ -167,4 +178,3 @@ ls   R0, 11
 addi R0, 15     #R0 = 1111_1111
 ls   R1, 15     
 biz  R1, R0     |jump to PC = 1111_1111_00 since R1 always 0
-

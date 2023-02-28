@@ -1,0 +1,15 @@
+# Pre-loaded memory layout:
+#   bitmasks initialized nonzero (see spec for bitmask vals)
+#   j initialized as 30
+# 64 = j
+# 65...72 = bitmasks
+# 73 = temp1
+# 74 = temp2
+# 75...78 = pb[0...3]
+# 79 = par0
+# 80 = b_err
+
+ls   R0, 15     |decode loop beginning (PC = 0000_0000_(00))
+ls   R1, 15
+ls   R2, 15
+ls   R3, 15     |clear lower reg values
