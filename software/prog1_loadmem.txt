@@ -31,3 +31,4 @@ sb   R0, R1		#store bitsmask[3] at mem[68]
 73 = temp1
 74 = temp2
 75...78 = pb[0...3]
+79 = par0
