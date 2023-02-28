@@ -1,0 +1,76 @@
+addi R0, 0		|#beginning of encode loop
+mv   R6, R0		#R6 = i (for-loop counter)
+addi R0, 4		|
+mv   R7, R0		#R7 = 8 (size of bm array)
+ls   R1, 15		#beginning of for-loop (PC 00_0000_0100)
+addi R1, 4		
+ls   R1, 11		
+lb   R0, R1		| R0 = j at mem[64]
+lb   R0, R0		| R0 = mem[j] (msw)
+mv   R5, R0		#R5 = msw
+addi R1, 1		| R1 = 65 (&bitmask[0])
+mv   R0, R6		|
+add  R0, R1		#R0 = &bitmask[i]
+lb   R3, R0		#R3 = bitmask[i]
+and  R5, R3		#R5 = msw & bitmask[i]
+mv   R3, R5		|
+ls   R1, 15
+addi R1, 4		|
+ls   R1, 11
+addi R1, 9		#R1 = 73
+sb   R3, R1		#store temp1 at mem[73]
+ls   R1, 15		#clear R1
+addi R1, 4		
+ls   R1, 11		#R1 = 64
+lb   R0, R1		| R0 = j at mem[64]
+addi R0, 1
+lb   R0, R0		| R0 = mem[j + 1] (lsw)
+mv   R5, R0		#R5 = lsw
+addi R1, 1		#R1 = &bitmask[0]
+mv   R0, R6		|
+addi R0, 1		| R0 = i + 1
+add  R0, R1		#R0 = &bitmask[i+1]
+lb   R3, R0		#R3 = bitmask[i+1]
+and  R5, R3		#R5 = temp2 <= lsw & bitmask[i+1]
+ls   R0, 0		#R0 = ^(temp2)
+ls   R0, 0		|
+addi R1, 4		|
+ls   R1, 11		|
+addi R1, 9		|
+lb   R1, R1		#load temp1 to R1
+ls   R0, 0		#R0 = parity <= parity^(temp1)
+ls   R1, 15		|
+addi R1, 4		|
+ls   R1, 11		|
+addi R1, 11		#R1 = 75 (&pb[0])
+ls   R2, 15
+ls   R3, 15
+mv   R2, R6		|
+addi R3, 6		|
+and  R2, R3		|
+add  R1, R2		#R1 = &pb[i & 6]
+sb   R0, R1		#pb[i] = parity
+addi R0, 2		|
+add  R6, R0		#i += 2
+ls   R0, 15		|
+addi R0, 1		#R0 = addr of for-loop (PC 00_0000_0001)
+slt  R6, R7		|
+biz  R6, R0		#if i < 8, return back to start of for-loop
+lb  R1, %pb[0]		| get parity0    
+ls  R1, 3		#R1 = pb[0] << 3
+lb  R2, %pb[1]		|
+ls  R2, 2		|
+or  R1, R2		#R1 = R1 | (pb[1] << 2)
+lb  R2, %pb[2]		|
+ls  R2, 1		|
+or  R1, R2		#R1 = R1 | (pb[2] << 1)
+lb  R2, %pb[3]		|
+or  R1, R2		#R1 = R1 | pb[3]
+lb  R0, %msb		|
+ls  R0, 4		|
+or  R0, R1		#R0 = (msb << 4) | pb[0:3]
+ls  R1, 8		#R1 = ^(R0)
+lb  R0, %lsw		|
+ls  R1, 8		#R1 = R1^(temp1) (par0)
+
+

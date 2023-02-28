@@ -1,0 +1,4 @@
+add R1, R2
+mov R5, R2
+biz R7, R6
+ls  R3, 14
